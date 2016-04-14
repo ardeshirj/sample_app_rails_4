@@ -66,7 +66,7 @@ sorted_login_users = (users) ->
       users[user_id].login_time
     ]
 
-  sorted_login_time.sort (a, b) -> a.login_time > b.login_time
+  sorted_login_time.sort (a, b) -> a[1] > b[1]
   return sorted_login_time
 
 $(document).ready ->
