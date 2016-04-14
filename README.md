@@ -1,25 +1,13 @@
-# Ruby on Rails Tutorial: sample application
+# Queue 4 Cookies
+An small widget on homepage to give cookie to less than 100 user at a time.
 
-This is the sample application for
-[*Ruby on Rails Tutorial: Learn Web Development with Rails*](http://railstutorial.org/)
-by [Michael Hartl](http://michaelhartl.com/). You can use this reference implementation to help track down errors if you end up having trouble with code in the tutorial. In particular, as a first debugging check I suggest getting the test suite to pass on your local machine:
+## How it works
+Once the user login to the website, it will redirected to the homepage, and that is where the cookies live :)
 
-    cd /tmp
-    git clone https://github.com/railstutorial/sample_app_rails_4.git
-    cd sample_app_rails_4
-    cp config/database.yml.example config/database.yml
-    bundle install --without production
-    bundle exec rake db:migrate
-    bundle exec rake db:test:prepare
-    bundle exec rspec spec/
+At this point, the Pusher service has triggered the authentication process by sending the `JSON` request to /auth route in CookiesController. The controller will use `devise` helper method called `current_user` to make sure the user is authenticated. After that, It will create and send the `member` information to the Pusher service. The response to that is a `JSON` which include the `auth` value.
 
-If the tests don't pass, it means there may be something wrong with your system. If they do pass, then you can debug your code by comparing it with the reference implementation.
+This was initial step for the Pusher to subscribe the user to the `presence-cookies-channel` channel. The Pusher will then add the user to `member` property of the channel, and this will happen for every user that login for up 100 users.
 
-## Get Started in seconds on Nitrous.IO
+Each user can request a favorite cookie, however if we already reached out the `quota` then the user has to wait till some users leave the `cookie` channel. Once a user leave the channel then the`member_removed` event will be triggered, and if the number of members is less than the quota then the user who logged-in earlier will get the cookie.
 
-[Nitrous.IO](https://www.nitrous.io/?utm_source=github.com&utm_campaign=railstutorial-sample_app_rails_4&utm_medium=hackonnitrous) is a cloud-based platform that will let you start working on this project in a matter of seconds.
-
-Click on the button below to get started:
-
-[![Hack railstutorial/sample_app_rails_4 on
-Nitrous.IO](https://d3o0mnbgv6k92a.cloudfront.net/assets/hack-l-v1-3cc067e71372f6045e1949af9d96095b.png)](https://www.nitrous.io/hack_button?source=embed&runtime=rails&repo=railstutorial%2Fsample_app_rails_4&file_to_open=README.nitrous.md)
+Please note we use the the user `login-time` to find out who is the next on in the queue to get a cookie. This `login-time` has been created during the `auth` process where we created the users and sent them to the Pusher service.
