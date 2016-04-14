@@ -1,19 +1,26 @@
 <% if signed_in? %>
+<h1>Who’s here for cookies</h1>
   <div class="row">
-    <aside class="span4">
-      <section>
-        <%= render 'shared/user_info' %>
-      </section>
-      <section>
-        <%= render 'shared/stats' %>
-      </section>
-      <section>
-        <%= render 'shared/micropost_form' %>
-      </section>
-    </aside>
-    <div class="span8">
-      <h3>Micropost Feed</h3>
-      <%= render 'shared/feed' %>
+    <div class="span6 offset3">
+
+      <div id="request-status" class="alert alert-info"></div>
+
+      <%= select_tag(:cookie_drop_down,
+          options_for_select([
+              ['Brownie', 1],
+              ['Choclate chip', 2],
+              ['Fortune cookie', 3],
+              ['Gingerbread man', 4],
+              ['Sugar cookie', 5],
+            ],
+          ),
+        )%>
+
+      <%= link_to "Request",
+        { method: :post, remote: true},
+        id: "request-btn",
+        class: "btn btn-primary"%>
+
     </div>
   </div>
 <% else %>
