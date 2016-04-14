@@ -26,7 +26,7 @@ presenceChannel.bind 'pusher:member_removed', (member) ->
 
   me = members.me
   users = members["members"]
-  next_user =  earliest_login_user(users)
+  next_user = earliest_login_user(users)
   # console.log "I am next" if me.id == parseInt(next_user[0])
 
   if members.count < quota and me.id == parseInt(next_user[0])
@@ -35,7 +35,12 @@ presenceChannel.bind 'pusher:member_removed', (member) ->
   return
 
 presenceChannel.bind 'pusher:subscription_error', (status) ->
-  console.log "A member could NOT subscribe - error code: " + status
+  $('#request-status').html """
+    We can't serve cookie at the moment.
+    Please check back later.
+    """
+  $('#request-status').show()  
+  console.log "Error code: " + status
   return
 
 
