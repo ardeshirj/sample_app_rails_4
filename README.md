@@ -11,3 +11,8 @@ At this point, the Pusher service has triggered the authentication process by se
 This was initial step for the Pusher to subscribe the user to the `presence-cookies-channel` channel. Once the subscription was successful, the `subscription_succeeded` method will be triggered. At this point, we use the channel property called `members.count` to check if we have met the quota yet. If so then we will disable the user `request` button and update the status that user has to wait. Otherwise we just let the user to request a cookie.
 
 Once a user leave the channel then the `member_removed` event will be triggered, and if the number of members is less than the `quota-1` then we know there is an open spot for the next person to get a cookie. At this point, we use the `logged-in` attribute to sort the members in ascending order. This way, we know the `members.count-1` spot is actually the first person in queue line. Now that we know the next person `id` and if it matches with `members.me.id` attribute in channel then we can let them have the selected cookie.
+
+## Todo
+As future implementations, I would work on following items:
+- Write test cases using [pusher-js-test-stub](https://github.com/pusher-community/pusher-js-test-stub)
+- Setup environment variable to avoid API keys in configuration file.
