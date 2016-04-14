@@ -14,24 +14,37 @@ pusher = new Pusher('885cb9dcf5e442cbfe46',
 presenceChannel = pusher.subscribe('presence-cookies-channel')
 
 presenceChannel.bind 'pusher:subscription_succeeded', (members) ->
-  console.log "There are " + members.count + " in this channel"
+  console.log "New member SUBSCRIBED!"
+  if presenceChannel.members.count >= quota
+    $('#request-status').html """
+      You’re in a queue &
+      will get your cookie when it’s your turn.
+      """
+    $('#request-status').show()
+  else
+    $('#request-btn').show()
   return
 
 presenceChannel.bind 'pusher:member_added', (member) ->
-  console.log presenceChannel.members
+  console.log "New member ADDED"
   return
 
 presenceChannel.bind 'pusher:member_removed', (member) ->
+  console.log "A member REMOVED!"
+
   members = presenceChannel.members
-
-  me = members.me
   users = members["members"]
-  next_user = earliest_login_user(users)
-  # console.log "I am next" if me.id == parseInt(next_user[0])
 
-  if members.count < quota and me.id == parseInt(next_user[0])
-    $('#request-status').html "Your " + me.info + " cookie is READY!"
-    return
+  if members.count == quota - 1 # A spot is open now!
+    sorted_users = sorted_login_users(users)
+
+    # First person in-line after meeting the quota
+    next_user = sorted_users[members.count - 1]
+
+    if members.me.id == parseInt(next_user[0])
+      selected_cookie = $('#cookie_drop_down option:selected').text()
+      $('#request-status').html "Your " + selected_cookie + " cookie is READY!"
+      console.log next_user
   return
 
 presenceChannel.bind 'pusher:subscription_error', (status) ->
@@ -39,12 +52,12 @@ presenceChannel.bind 'pusher:subscription_error', (status) ->
     We can't serve cookie at the moment.
     Please check back later.
     """
-  $('#request-status').show()  
+  $('#request-status').show()
   console.log "Error code: " + status
   return
 
 
-earliest_login_user = (users) ->
+sorted_login_users = (users) ->
   # [[id_value, login_time_value], ...]
   sorted_login_time = []
   for user_id of users
@@ -54,26 +67,16 @@ earliest_login_user = (users) ->
     ]
 
   sorted_login_time.sort (a, b) -> a.login_time > b.login_time
-  return sorted_login_time[0]
+  return sorted_login_time
 
 $(document).ready ->
   $('#request-status').hide()
+  $('#request-btn').hide()
 
   $('#request-btn').click (e) ->
     e.preventDefault()
     selected_cookie = $('#cookie_drop_down option:selected').text()
-
-    if presenceChannel.members.count >= quota
-      $('#request-status').html """
-        You’re in a queue &
-        will get your cookie when it’s your turn.
-        """
-
-      me = presenceChannel.members.me
-      me.info = selected_cookie
-    else
-      $('#request-status').html "Enjoy your " + selected_cookie + " cookie"
-
+    $('#request-status').html "Enjoy your " + selected_cookie + " cookie"
     $('#request-status').show()
     return
   return
