@@ -6,7 +6,7 @@ Pusher.log = (message) ->
   console.log message
   return
 
-quota = 2
+quota = 3
 
 pusher = new Pusher('885cb9dcf5e442cbfe46',
   authEndpoint: '/auth'
@@ -17,11 +17,19 @@ presenceChannel.bind 'pusher:subscription_succeeded', (members) ->
   console.log "There are " + members.count + " in this channel"
   return
 
-presenceChannel.bind 'pusher:member_removed', (member) ->
-  me = presenceChannel.members.me
-  members_count = presenceChannel.members.count
+presenceChannel.bind 'pusher:member_added', (member) ->
+  console.log presenceChannel.members
+  return
 
-  if members_count < quota
+presenceChannel.bind 'pusher:member_removed', (member) ->
+  members = presenceChannel.members
+
+  me = members.me
+  users = members["members"]
+  next_user =  earliest_login_user(users)
+  # console.log "I am next" if me.id == parseInt(next_user[0])
+
+  if members.count < quota and me.id == parseInt(next_user[0])
     $('#request-status').html "Your " + me.info + " cookie is READY!"
     return
   return
@@ -30,6 +38,18 @@ presenceChannel.bind 'pusher:subscription_error', (status) ->
   console.log "A member could NOT subscribe - error code: " + status
   return
 
+
+earliest_login_user = (users) ->
+  # [[id_value, login_time_value], ...]
+  sorted_login_time = []
+  for user_id of users
+    sorted_login_time.push [
+      user_id
+      users[user_id].login_time
+    ]
+
+  sorted_login_time.sort (a, b) -> a.login_time > b.login_time
+  return sorted_login_time[0]
 
 $(document).ready ->
   $('#request-status').hide()

@@ -9,7 +9,8 @@ class CookiesController < ApplicationController
     if current_user
       response = Pusher[params[:channel_name]].authenticate(
         params[:socket_id],
-        user_id: current_user.id
+        user_id: current_user.id,
+        user_info: { login_time: Time.now.to_formatted_s(:number) }
       )
       render json: response
     else
