@@ -3,8 +3,17 @@ An small widget on homepage to give cookie to less than 100 user at a time.
 
 Check me out here: https://morning-gorge-17028.herokuapp.com/
 
+## Setup
+```shell
+cp config/database.yml.example config/database.yml
+bundle install --without production
+bundle exec rake db:migrate
+bundle exec rake db:test:prepare
+bundle exec rspec spec/
+```
+
 ## How it works
-Once the user login to the website, it will redirected to the homepage, and that is where the cookies live :)
+Once the user login to the website, it will be redirected to the homepage, and that is where the cookies live :)
 
 At this point, the Pusher service has triggered the authentication process by sending the `JSON` request to /auth route in `cookies_controller`. The controller will use `devise` helper method called `current_user` to make sure the user is authenticated. After that, It will create and send the `member` information (including login-time) to the Pusher service. The response to that is a `JSON` which include the `auth` value.
 
