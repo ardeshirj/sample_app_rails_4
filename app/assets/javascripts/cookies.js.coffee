@@ -40,11 +40,12 @@ presenceChannel.bind 'pusher:member_removed', (member) ->
 
     # First person in-line after meeting the quota
     next_user = sorted_users[members.count - 1]
+    need_update = true if $('#request-btn').css('display') == 'none'
 
-    if members.me.id == parseInt(next_user[0])
+    if members.me.id == parseInt(next_user[0]) and need_update
       selected_cookie = $('#cookie_drop_down option:selected').text()
       $('#request-status').html "Your " + selected_cookie + " cookie is READY!"
-      console.log next_user
+      $('#request-btn').show()
   return
 
 presenceChannel.bind 'pusher:subscription_error', (status) ->
